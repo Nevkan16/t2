@@ -10,7 +10,6 @@ import configparser
 import keyboard
 import pyautogui  # Импортируем библиотеку для работы с мышью
 from menu import create_menu  # Импортируем меню из другого файла
-from hotkeys import set_global_hotkey  # Удалите импорт minimize_gto_windows
 
 
 # Global variables for storing the current window position and PID of the process
@@ -114,6 +113,11 @@ def minimize_gto_windows(log_text):
     else:
         add_log(log_text, "GTO.EXE not found. Cannot minimize.")
 
+def set_global_hotkey(log_text):
+    """Set global hotkeys."""
+    # Устанавливаем глобальный хоткей для минимизации окон GTO.EXE
+    keyboard.add_hotkey('shift+a', lambda: minimize_gto_windows(log_text))
+
 def duplicate_mouse_click():
     """Duplicate the left mouse click."""
     x, y = pyautogui.position()  # Получаем текущую позицию мыши
@@ -199,7 +203,7 @@ def main():
     start_monitor(start_button)  # Automatically start the monitor on program launch
 
     # Устанавливаем глобальные хоткеи
-    keyboard.add_hotkey('ctrl+d', duplicate_mouse_click)  # Добавляем хоткей для дублирования левого клика
+    keyboard.add_hotkey('alt+d', duplicate_mouse_click)  # Добавляем хоткей для дублирования левого клика
     set_global_hotkey(log_text)  # Set the global hotkey
 
     root.mainloop()
