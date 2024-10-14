@@ -9,6 +9,8 @@ import win32con
 import configparser
 import keyboard
 from menu import create_menu  # Импортируем меню из другого файла
+from hotkeys import set_global_hotkey  # Удалите импорт minimize_gto_windows
+
 
 # Global variables for storing the current window position and PID of the process
 hwnds = []
@@ -26,6 +28,7 @@ def find_windows_by_pid(pid):
     hwnd_list = []
     win32gui.EnumWindows(callback, hwnd_list)
     return hwnd_list
+
 
 def monitor_gto_process(log_text, start_button, exit_event):
     """Monitor the GTO.EXE processes and log their status."""
@@ -91,6 +94,7 @@ def monitor_gto_process(log_text, start_button, exit_event):
 
         time.sleep(1)
 
+
 def add_log(log_text, message):
     """Add a log message to the log_text widget, keeping only the last 4 messages."""
     log_text.config(state=tk.NORMAL)
@@ -101,12 +105,17 @@ def add_log(log_text, message):
     log_text.config(state=tk.DISABLED)
     log_text.yview(tk.END)
 
-def minimize_gto_windows():
+
+def minimize_gto_windows(log_text):
     """Minimize all GTO.EXE windows."""
     global hwnds
-    for hwnd in hwnds:
-        win32gui.ShowWindow(hwnd, win32con.SW_MINIMIZE)
-    add_log(log_text, "All GTO.EXE windows minimized.")
+    if hwnds:
+        for hwnd in hwnds:
+            win32gui.ShowWindow(hwnd, win32con.SW_MINIMIZE)
+        add_log(log_text, "All GTO.EXE windows minimized.")
+    else:
+        add_log(log_text, "GTO.EXE not found. Cannot minimize.")
+
 
 def save_window_position(root):
     """Save the current position of the window to a config file."""
@@ -118,6 +127,7 @@ def save_window_position(root):
     with open(CONFIG_FILE, 'w') as configfile:
         config.write(configfile)
 
+
 def load_window_position():
     """Load the window position from the config file."""
     config = configparser.ConfigParser()
@@ -128,9 +138,6 @@ def load_window_position():
         return x, y
     return 100, 100
 
-def set_global_hotkey():
-    # Устанавливаем глобальный хоткей на Shift + A
-    keyboard.add_hotkey('shift+a', minimize_gto_windows)
 
 def main():
     """Main function to set up the Tkinter GUI and start monitoring."""
@@ -139,6 +146,7 @@ def main():
     root = tk.Tk()
     root.title("t2")
     root.iconbitmap('t2.ico')
+
     x, y = load_window_position()
     root.geometry(f"180x120+{x}+{y}")
     root.resizable(False, False)
@@ -185,13 +193,14 @@ def main():
     stop_button = tk.Button(root, text="Stop", command=stop_monitor, state="disabled")
     stop_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-    minimize_button = tk.Button(root, text="_____", command=minimize_gto_windows, state="normal")
+    minimize_button = tk.Button(root, text="_____", command=lambda: minimize_gto_windows(log_text), state="normal")
     minimize_button.pack(side=tk.LEFT, padx=5, pady=5)
 
     start_monitor(start_button)  # Automatically start the monitor on program launch
-    set_global_hotkey()  # Set the global hotkey
+    set_global_hotkey(log_text)  # Set the global hotkey
 
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()
