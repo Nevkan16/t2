@@ -145,10 +145,10 @@ def main():
 
     root = tk.Tk()
     root.title("t2")
-    root.iconbitmap('t2.ico')
+    # root.iconbitmap('t2.ico')
 
     x, y = load_window_position()
-    root.geometry(f"180x120+{x}+{y}")
+    root.geometry(f"180x100+{x}+{y}")
     root.resizable(False, False)
 
     log_text = scrolledtext.ScrolledText(root, height=4, width=24)
