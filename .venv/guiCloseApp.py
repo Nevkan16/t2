@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import scrolledtext
+from tkinter import scrolledtext, messagebox
 import win32gui
 import win32process
 import psutil
@@ -8,6 +8,7 @@ import threading
 import win32con
 import configparser
 import keyboard
+from menu import create_menu  # Импортируем меню из другого файла
 
 # Global variables for storing the current window position and PID of the process
 hwnds = []
@@ -16,7 +17,6 @@ CONFIG_FILE = 'window_position.ini'
 
 def find_windows_by_pid(pid):
     """Find all window handles for a given process ID (PID)."""
-
     def callback(hwnd, extra):
         if win32gui.IsWindowVisible(hwnd):
             found_pid = win32process.GetWindowThreadProcessId(hwnd)[1]
@@ -26,7 +26,6 @@ def find_windows_by_pid(pid):
     hwnd_list = []
     win32gui.EnumWindows(callback, hwnd_list)
     return hwnd_list
-
 
 def monitor_gto_process(log_text, start_button, exit_event):
     """Monitor the GTO.EXE processes and log their status."""
@@ -92,7 +91,6 @@ def monitor_gto_process(log_text, start_button, exit_event):
 
         time.sleep(1)
 
-
 def add_log(log_text, message):
     """Add a log message to the log_text widget, keeping only the last 4 messages."""
     log_text.config(state=tk.NORMAL)
@@ -102,7 +100,6 @@ def add_log(log_text, message):
         log_text.delete("1.0", "2.0")
     log_text.config(state=tk.DISABLED)
     log_text.yview(tk.END)
-
 
 def minimize_gto_windows():
     """Minimize all GTO.EXE windows."""
@@ -132,7 +129,7 @@ def load_window_position():
     return 100, 100
 
 def set_global_hotkey():
-    # Устанавливаем глобальный хоткей на Tab
+    # Устанавливаем глобальный хоткей на Shift + A
     keyboard.add_hotkey('shift+a', minimize_gto_windows)
 
 def main():
@@ -176,6 +173,10 @@ def main():
         root.destroy()
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
+
+    # Добавляем меню
+    menu_bar = create_menu(root)
+    root.config(menu=menu_bar)
 
     start_button = tk.Button(root, text="Start", command=lambda: start_monitor(start_button), state="normal")
     start_button.pack(side=tk.LEFT, padx=5, pady=5)
