@@ -8,6 +8,7 @@ import threading
 import win32con
 import configparser
 import keyboard
+import pyautogui  # Импортируем библиотеку для работы с мышью
 from menu import create_menu  # Импортируем меню из другого файла
 from hotkeys import set_global_hotkey  # Удалите импорт minimize_gto_windows
 
@@ -28,7 +29,6 @@ def find_windows_by_pid(pid):
     hwnd_list = []
     win32gui.EnumWindows(callback, hwnd_list)
     return hwnd_list
-
 
 def monitor_gto_process(log_text, start_button, exit_event):
     """Monitor the GTO.EXE processes and log their status."""
@@ -94,7 +94,6 @@ def monitor_gto_process(log_text, start_button, exit_event):
 
         time.sleep(1)
 
-
 def add_log(log_text, message):
     """Add a log message to the log_text widget, keeping only the last 4 messages."""
     log_text.config(state=tk.NORMAL)
@@ -104,7 +103,6 @@ def add_log(log_text, message):
         log_text.delete("1.0", "2.0")
     log_text.config(state=tk.DISABLED)
     log_text.yview(tk.END)
-
 
 def minimize_gto_windows(log_text):
     """Minimize all GTO.EXE windows."""
@@ -116,6 +114,10 @@ def minimize_gto_windows(log_text):
     else:
         add_log(log_text, "GTO.EXE not found. Cannot minimize.")
 
+def duplicate_mouse_click():
+    """Duplicate the left mouse click."""
+    x, y = pyautogui.position()  # Получаем текущую позицию мыши
+    pyautogui.click(x, y)  # Выполняем клик
 
 def save_window_position(root):
     """Save the current position of the window to a config file."""
@@ -127,7 +129,6 @@ def save_window_position(root):
     with open(CONFIG_FILE, 'w') as configfile:
         config.write(configfile)
 
-
 def load_window_position():
     """Load the window position from the config file."""
     config = configparser.ConfigParser()
@@ -137,7 +138,6 @@ def load_window_position():
         y = config.getint('WindowPosition', 'y', fallback=100)
         return x, y
     return 100, 100
-
 
 def main():
     """Main function to set up the Tkinter GUI and start monitoring."""
@@ -197,10 +197,12 @@ def main():
     minimize_button.pack(side=tk.LEFT, padx=5, pady=5)
 
     start_monitor(start_button)  # Automatically start the monitor on program launch
+
+    # Устанавливаем глобальные хоткеи
+    keyboard.add_hotkey('ctrl+d', duplicate_mouse_click)  # Добавляем хоткей для дублирования левого клика
     set_global_hotkey(log_text)  # Set the global hotkey
 
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
