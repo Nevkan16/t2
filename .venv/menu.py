@@ -17,7 +17,7 @@ def show_hotkeys():
     hotkeys_info = (
         "Hotkey List:\n\n"
         "Shift + A: Minimize all GTO.EXE windows\n"
-        "Shift: Left Click\n"
+        "'Shift' OR 'A' OR 'D': Left Click\n"
         "Start Button: Start monitoring\n"
         "Stop Button: Stop monitoring"
     )

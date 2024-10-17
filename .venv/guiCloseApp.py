@@ -122,6 +122,8 @@ def duplicate_mouse_click():
     """Duplicate the left mouse click."""
 
     keyboard.add_hotkey('shift', lambda: pyautogui.click())
+    keyboard.add_hotkey('a', lambda: pyautogui.click())
+    keyboard.add_hotkey('d', lambda: pyautogui.click())
 
 def save_window_position(root):
     """Save the current position of the window to a config file."""
