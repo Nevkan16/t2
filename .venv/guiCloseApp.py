@@ -121,9 +121,7 @@ def set_global_hotkey(log_text):
 def duplicate_mouse_click():
     """Duplicate the left mouse click."""
 
-    # x, y = pyautogui.position()  # Получаем текущую позицию мыши
-    pyautogui.click();
-    # pyautogui.click(x, y)  # Выполняем клик
+    keyboard.add_hotkey('shift', lambda: pyautogui.click())
 
 def save_window_position(root):
     """Save the current position of the window to a config file."""
@@ -205,7 +203,8 @@ def main():
     start_monitor(start_button)  # Automatically start the monitor on program launch
 
     # Устанавливаем глобальные хоткеи
-    keyboard.add_hotkey('ctrl+m', duplicate_mouse_click)  # Добавляем хоткей для дублирования левого клика
+    duplicate_mouse_click()
+    # keyboard.add_hotkey('ctrl+m', duplicate_mouse_click)  # Добавляем хоткей для дублирования левого клика
     set_global_hotkey(log_text)  # Set the global hotkey
 
     root.mainloop()
