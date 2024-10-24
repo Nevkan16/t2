@@ -10,6 +10,8 @@ import configparser
 import keyboard
 import pyautogui  # Импортируем библиотеку для работы с мышью
 from menu import create_menu  # Импортируем меню из другого файла
+from tkinter import Tk, PhotoImage
+from PIL import Image, ImageTk
 
 
 # Global variables for storing the current window position and PID of the process
@@ -150,7 +152,13 @@ def main():
 
     root = tk.Tk()
     root.title("t2")
-    # root.iconbitmap('t2.ico')
+
+    try:
+        img = Image.open("t2.ico")
+        icon = ImageTk.PhotoImage(img)
+        root.iconphoto(True, icon)  # Устанавливаем иконку
+    except Exception as e:
+        print(f"Иконка не найдена или произошла ошибка: {e}")
 
     x, y = load_window_position()
     root.geometry(f"180x100+{x}+{y}")
