@@ -16,9 +16,11 @@ def show_hotkeys():
     """Display a window with the list of hotkeys."""
     hotkeys_info = (
         "Hotkey List:\n\n"
-        "Shift + A: Minimize all GTO.EXE windows\n"
-        "'Shift' OR 'D': Left Click\n"
-        "Start Button: Start monitoring\n"
-        "Stop Button: Stop monitoring"
+        "Shift + A:\n\n"
+        "Minimize and close all GTO.EXE windows.\n"
+        "Close Chrome.\n\n"
+        "'Shift' OR 'D': Left Click.\n\n"
+        "Start Button: Start monitoring.\n\n"
+        "Stop Button: Stop monitoring."
     )
     messagebox.showinfo("Hotkeys", hotkeys_info)

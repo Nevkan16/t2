@@ -13,14 +13,15 @@ from menu import create_menu  # Импортируем меню из друго�
 from tkinter import Tk, PhotoImage
 from PIL import Image, ImageTk
 
-
 # Global variables for storing the current window position and PID of the process
 hwnds = []
 current_pids = []
 CONFIG_FILE = 'window_position.ini'
+monitoring_enabled = True
 
 def find_windows_by_pid(pid):
     """Find all window handles for a given process ID (PID)."""
+
     def callback(hwnd, extra):
         if win32gui.IsWindowVisible(hwnd):
             found_pid = win32process.GetWindowThreadProcessId(hwnd)[1]
@@ -30,6 +31,7 @@ def find_windows_by_pid(pid):
     hwnd_list = []
     win32gui.EnumWindows(callback, hwnd_list)
     return hwnd_list
+
 
 def monitor_gto_process(log_text, start_button, exit_event):
     """Monitor the GTO.EXE processes and log their status."""
@@ -95,6 +97,7 @@ def monitor_gto_process(log_text, start_button, exit_event):
 
         time.sleep(1)
 
+
 def add_log(log_text, message):
     """Add a log message to the log_text widget, keeping only the last 4 messages."""
     log_text.config(state=tk.NORMAL)
@@ -104,6 +107,7 @@ def add_log(log_text, message):
         log_text.delete("1.0", "2.0")
     log_text.config(state=tk.DISABLED)
     log_text.yview(tk.END)
+
 
 def minimize_gto_windows(log_text):
     """Minimize all GTO.EXE windows."""
@@ -115,16 +119,39 @@ def minimize_gto_windows(log_text):
     else:
         add_log(log_text, "GTO.EXE not found. Cannot minimize.")
 
+def terminate_chrome():
+    """Завершает все процессы Google Chrome, если мониторинг включен."""
+    if not monitoring_enabled:
+        add_log(log_text, "Action blocked. Monitoring stopped.")
+        return  # Выход из функции, если нажата кнопка Stop
+
+    chrome_found = False
+    for proc in psutil.process_iter(['pid', 'name']):
+        if proc.info['name'].lower() == "chrome.exe":
+            chrome_found = True
+            try:
+                proc.terminate()
+                proc.wait(timeout=3)
+            except Exception:
+                pass
+
+    if chrome_found:
+        add_log(log_text, "Chrome windows closed.")
+    else:
+        add_log(log_text, "Chrome windows not found.")
+
+
 def set_global_hotkey(log_text):
     """Set global hotkeys."""
-    # Устанавливаем глобальный хоткей для минимизации окон GTO.EXE
-    keyboard.add_hotkey('shift+a', lambda: minimize_gto_windows(log_text))
+    keyboard.add_hotkey('shift+a', lambda: [minimize_вgto_windows(log_text), terminate_chrome()])
+
 
 def duplicate_mouse_click():
     """Duplicate the left mouse click."""
 
     keyboard.add_hotkey('shift', lambda: pyautogui.click())
     keyboard.add_hotkey('d', lambda: pyautogui.click())
+
 
 def save_window_position(root):
     """Save the current position of the window to a config file."""
@@ -136,6 +163,7 @@ def save_window_position(root):
     with open(CONFIG_FILE, 'w') as configfile:
         config.write(configfile)
 
+
 def load_window_position():
     """Load the window position from the config file."""
     config = configparser.ConfigParser()
@@ -145,6 +173,7 @@ def load_window_position():
         y = config.getint('WindowPosition', 'y', fallback=100)
         return x, y
     return 100, 100
+
 
 def main():
     """Main function to set up the Tkinter GUI and start monitoring."""
@@ -171,7 +200,9 @@ def main():
     monitor_thread = None
 
     def start_monitor(start_button):
-        nonlocal monitor_thread
+        """Запускает мониторинг."""
+        global monitoring_enabled, monitor_thread
+        monitoring_enabled = True  # Разрешаем выполнение terminate_chrome()
         exit_event.clear()
         start_button.config(state="disabled")
         stop_button.config(state="normal")
@@ -181,7 +212,9 @@ def main():
         add_log(log_text, "Monitoring.")
 
     def stop_monitor():
-        nonlocal monitor_thread
+        """Останавливает мониторинг и запрещает terminate_chrome()."""
+        global monitoring_enabled
+        monitoring_enabled = False  # Блокируем выполнение terminate_chrome()
         exit_event.set()
         if monitor_thread is not None:
             monitor_thread.join()
@@ -217,6 +250,7 @@ def main():
     set_global_hotkey(log_text)  # Set the global hotkey
 
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()
